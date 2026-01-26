@@ -2,19 +2,19 @@ import streamlit as st
 import pickle
 import cv2
 import numpy as np
+from skimage.feature import local_binary_pattern
+import numpy as np
 from streamlit_option_menu import option_menu
 from predict_utils import build_feature
 import os
 import base64
-import os
 from pathlib import Path                   
 from glob import glob           
 import numpy as np      
 import matplotlib.pyplot as plt 
 import seaborn as sns           
 from skimage.feature import hog               
-from skimage.feature import local_binary_pattern 
-from skimage.color import rgb2gray      
+from skimage.feature import local_binary_pattern  
 
 # Konfigurasi halaman
 st.set_page_config(
@@ -328,26 +328,11 @@ elif selected == "Prediksi Gambar":
     """, unsafe_allow_html=True)
 
 elif selected == "Analisis Model":
-
     def safe_cvtColor(img, conversion_code):
-        if conversion_code == cv2.COLOR_RGB2GRAY:
-            return rgb2gray(img) * 255  # skimage mengembalikan 0-1, konversi ke 0-255
-        elif conversion_code == cv2.COLOR_BGR2RGB:
-            return img[:, :, ::-1]  # Reverse channels BGR to RGB
-        else:
-            return cv2.cvtColor(img, conversion_code)
+        return cv2.cvtColor(img, conversion_code)
     
     def safe_resize(img, size):
-        from PIL import Image
-        import numpy as np
-        
-        if isinstance(img, np.ndarray):
-            pil_img = Image.fromarray(img)
-        else:
-            pil_img = img
-            
-        resized = pil_img.resize(size, Image.Resampling.LANCZOS)
-        return np.array(resized)
+        return cv2.resize(img, size, interpolation=cv2.INTER_LINEAR)
 
     # Dataset
     def get_dataset_paths():
@@ -376,32 +361,32 @@ elif selected == "Analisis Model":
     (augmented_base_path / 'Real Image').mkdir(parents=True, exist_ok=True)
 
     def apply_augmentation(image_path, save_folder):
-        img = cv2.imread(image_path)
+        img = cv.imread(image_path)
         if img is None:
             return
         filename = Path(image_path).stem
 
         # 1. Gambar Asli (Original)
-        cv2.imwrite(str(save_folder / f"{filename}_orig.jpg"), img)
+        cv.imwrite(str(save_folder / f"{filename}_orig.jpg"), img)
 
         # 2. Flip Horizontal
-        flip_img = cv2.flip(img, 1)
-        cv2.imwrite(str(save_folder / f"{filename}_flip.jpg"), flip_img)
+        flip_img = cv.flip(img, 1)
+        cv.imwrite(str(save_folder / f"{filename}_flip.jpg"), flip_img)
 
         # 3. Rotasi 10 Derajat
         (h, w) = img.shape[:2]
         center = (w // 2, h // 2)
-        M = cv2.getRotationMatrix2D(center, 10, 1.0)
-        rot_img = cv2.warpAffine(img, M, (w, h), borderMode=cv2.BORDER_REFLECT)
-        cv2.imwrite(str(save_folder / f"{filename}_rot.jpg"), rot_img)
+        M = cv.getRotationMatrix2D(center, 10, 1.0)
+        rot_img = cv.warpAffine(img, M, (w, h), borderMode=cv.BORDER_REFLECT)
+        cv.imwrite(str(save_folder / f"{filename}_rot.jpg"), rot_img)
 
         # 4. Zoom
         zoom_factor = 0.85
         h_start, w_start = int(h * (1-zoom_factor)/2), int(w * (1-zoom_factor)/2)
         h_end, w_end = h - h_start, w - w_start
         zoom_img = img[h_start:h_end, w_start:w_end]
-        zoom_img = safe_resize(zoom_img, (w, h))  # Gunakan safe_resize
-        cv2.imwrite(str(save_folder / f"{filename}_zoom.jpg"), zoom_img)
+        zoom_img = safe_resize(zoom_img, (w, h)) 
+        cv.imwrite(str(save_folder / f"{filename}_zoom.jpg"), zoom_img)
 
     # Hero section
     st.markdown("""
@@ -430,7 +415,7 @@ from pathlib import Path
 from glob import glob   
             
 # Pengolahan Citra
-import cv2                
+import cv                
 import numpy as np      
 
 # Visualisasi Data
@@ -534,28 +519,28 @@ print(f"Jumlah Real Images : {len(real_images)}")
     (augmented_base_path / 'Real Image').mkdir(parents=True, exist_ok=True)
 
     def apply_augmentation(image_path, save_folder):
-        img = cv2.imread(image_path)
+        img = cv.imread(image_path)
         if img is None:
             return
         filename = Path(image_path).stem
 
-        cv2.imwrite(str(save_folder / f"{filename}_orig.jpg"), img)
+        cv.imwrite(str(save_folder / f"{filename}_orig.jpg"), img)
 
-        flip_img = cv2.flip(img, 1)
-        cv2.imwrite(str(save_folder / f"{filename}_flip.jpg"), flip_img)
+        flip_img = cv.flip(img, 1)
+        cv.imwrite(str(save_folder / f"{filename}_flip.jpg"), flip_img)
 
         (h, w) = img.shape[:2]
         center = (w // 2, h // 2)
-        M = cv2.getRotationMatrix2D(center, 10, 1.0)
-        rot_img = cv2.warpAffine(img, M, (w, h), borderMode=cv2.BORDER_REFLECT)
-        cv2.imwrite(str(save_folder / f"{filename}_rot.jpg"), rot_img)
+        M = cv.getRotationMatrix2D(center, 10, 1.0)
+        rot_img = cv.warpAffine(img, M, (w, h), borderMode=cv.BORDER_REFLECT)
+        cv.imwrite(str(save_folder / f"{filename}_rot.jpg"), rot_img)
 
         zoom_factor = 0.85
         h_start, w_start = int(h * (1-zoom_factor)/2), int(w * (1-zoom_factor)/2)
         h_end, w_end = h - h_start, w - w_start
         zoom_img = img[h_start:h_end, w_start:w_end]
-        zoom_img = cv2.resize(zoom_img, (w, h))
-        cv2.imwrite(str(save_folder / f"{filename}_zoom.jpg"), zoom_img)
+        zoom_img = cv.resize(zoom_img, (w, h))
+        cv.imwrite(str(save_folder / f"{filename}_zoom.jpg"), zoom_img)
 
     for path in ai_images: apply_augmentation(path, augmented_base_path / 'AI Image')
     for path in real_images: apply_augmentation(path, augmented_base_path / 'Real Image')
@@ -571,8 +556,6 @@ print(f"Jumlah Real Images : {len(real_images)}")
         """, language="python")
 
     # DATASET SETELAH AUGMENTASI
-
-    # 1. Ambil path folder augmented
     aug_ai_path = Path.cwd() / "Dataset_Augmented" / "AI Image"
     aug_real_path = Path.cwd() / "Dataset_Augmented" / "Real Image"
 
@@ -580,7 +563,6 @@ print(f"Jumlah Real Images : {len(real_images)}")
     ai_images_aug = sorted(glob(str(aug_ai_path / "*")))
     real_images_aug = sorted(glob(str(aug_real_path / "*")))
 
-    # # 3. Tampilkan UI
     st.markdown("""
     <div class="card">
         <h4>📊 Statistik Dataset Setelah Augmentasi</h4>
@@ -615,7 +597,6 @@ print(f"Jumlah Real Images : {len(real_images)}")
     </div>
     """, unsafe_allow_html=True)
 
-    # Tab untuk memisahkan tampilan agar rapi
     tab_orig, tab_aug = st.tabs(["Gambar Orisinal", "Hasil Augmentasi"])
 
     with tab_orig:
@@ -651,7 +632,7 @@ print(f"Jumlah Real Images : {len(real_images)}")
             zoom = safe_resize(zoom, (w, h))
             return flip, rot, zoom
 
-        # --- BAGIAN GAMBAR AI ---
+        #BAGIAN GAMBAR AI
         st.markdown("#### 🤖 Contoh Augmentasi: Gambar AI")
         if ai_images:
             img_ai = cv2.imread(ai_images[0])
@@ -667,7 +648,7 @@ print(f"Jumlah Real Images : {len(real_images)}")
 
         st.markdown("<br>", unsafe_allow_html=True)
 
-        # --- BAGIAN GAMBAR REAL ---
+        # BAGIAN GAMBAR REAL
         st.markdown("#### 🖼️ Contoh Augmentasi: Gambar Nyata")
         if real_images:
             img_real = cv2.imread(real_images[0])
@@ -706,12 +687,12 @@ print(f"Jumlah Real Images : {len(real_images)}")
         labels = [] 
 
         for path in image_paths:
-            img = cv2.imread(path)
+            img = cv.imread(path)
             if img is None: continue
 
-            original_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-            resized_rgb = cv2.resize(original_rgb, (128, 128))
-            gray = cv2.cvtColor(resized_rgb, cv2.COLOR_RGB2GRAY)
+            original_rgb = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+            resized_rgb = cv.resize(original_rgb, (128, 128))
+            gray = cv.cvtColor(resized_rgb, cv.COLOR_RGB2GRAY)
             
             # Normalisasi 0-1
             norm_gray = gray / 255.0
@@ -741,7 +722,7 @@ print(f"Jumlah Real Images : {len(real_images)}")
         st.write(f"**Kelas: {label_name}**")
         p1, p2, p3, p4 = st.columns(4)
         p1.image(orig, caption="Original (Augmented)", use_container_width=True)
-        p2.image(res, caption="Resized RGB", use_container_width=True)
+        p2.image(res, caption="Resized RGB (128x128)", use_container_width=True)
         p3.image(gray, caption="Grayscale", use_container_width=True)
         p4.image(norm, caption="Normalized", use_container_width=True, clamp=True)
 
@@ -763,6 +744,94 @@ print(f"Jumlah Real Images : {len(real_images)}")
     </div>
     """, unsafe_allow_html=True)
 
+    #HOG
+    st.markdown("""
+    <div class="card">
+        <h3>🟢 Ekstraksi Fitur: Histogram of Oriented Gradients (HOG)</h3>
+        <p>Ekstraksi fitur yang berfokus pada bentuk (shape) dan tepi (edge) gambar berdasarkan arah gradien piksel.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    
+    st.code("""
+def extract_hog(images):
+    features = []
+    for img in images:
+        feat, _ = hog(img,
+                      orientations=9,
+                      pixels_per_cell=(8, 8),
+                      cells_per_block=(2, 2),
+                      block_norm='L2-Hys',
+                      visualize=True)
+        features.append(feat)
+    return np.array(features)
+    """, language="python")
+
+    # Visualisasi HOG
+    st.markdown("#### 🔍 Visualisasi Ekstraksi HOG")
+    
+    def plot_hog_st(image_path, label_name):
+        img_bgr = cv2.imread(image_path)
+        if img_bgr is None: return
+
+        img_rgb = safe_cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
+        img_res = safe_resize(img_rgb, (128, 128))
+        img_gray = safe_cvtColor(img_res, cv2.COLOR_RGB2GRAY).astype(np.uint8)
+        img_norm = img_gray / 255.0
+
+        fd, hog_image = hog(img_norm,
+                            orientations=9,
+                            pixels_per_cell=(8, 8),
+                            cells_per_block=(2, 2),
+                            block_norm='L2-Hys',
+                            visualize=True)
+
+        st.write(f"**Sampel {label_name}:**")
+        h_col1, h_col2 = st.columns(2)
+        with h_col1:
+            st.image(img_norm, caption="Grayscale Normalized", use_container_width=True, clamp=True)
+        with h_col2:
+            st.image(hog_image, caption="Visualisasi HOG", use_container_width=True, clamp=True)
+        return fd
+
+    if ai_images_for_view:
+        vec_hog_ai = plot_hog_st(ai_images_for_view[0], "AI")
+
+    st.markdown("<br>", unsafe_allow_html=True)
+
+    if real_images_for_view:
+        vec_hog_real = plot_hog_st(real_images_for_view[0], "Real")
+
+    total_hog = len(ai_images_aug) + len(real_images_aug)
+    hog_vector_length = len(vec_hog_ai) if 'vec_hog_ai' in locals() and vec_hog_ai is not None else 8100
+    st.markdown(f"""
+    <div style="background-color: rgba(128, 128, 128, 0.1); padding: 15px; border-radius: 10px; margin-top: 20px;">
+        <p style="margin: 0;">📊 <b>Bentuk array fitur HOG:</b> ({total_hog}, {hog_vector_length})</p>
+        <p style="margin: 0;">🏷️ <b>Jumlah label:</b> {total_hog}</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="card" style="text-align: center; margin-top: 30px;">
+        <h3>📋 VEKTOR FITUR HOG UNTUK SETIAP KELAS</h3>
+    </div>
+    """, unsafe_allow_html=True)
+
+    cv1, cv = st.columns(2)
+    with cv1:
+        st.markdown("#### --- Kelas: REAL ---")
+        if real_images_for_view and 'vec_hog_real' in locals():
+            st.write(f"**Panjang Vektor:** {len(vec_hog_real)}")
+            st.write("Contoh 20 angka pertama:")
+            st.code(f"{vec_hog_real[:20] if len(vec_hog_real) > 20 else vec_hog_real}", language="python")
+
+    with cv:
+        st.markdown("#### --- Kelas: AI ---")
+        if ai_images_for_view and 'vec_hog_ai' in locals():
+            st.write(f"**Panjang Vektor:** {len(vec_hog_ai)}")
+            st.write("Contoh 20 angka pertama:")
+            st.code(f"{vec_hog_ai[:20] if len(vec_hog_ai) > 20 else vec_hog_ai}", language="python")
+
     #RGB HISTOGRAM 
     st.markdown("""
     <div class="card">
@@ -775,9 +844,9 @@ print(f"Jumlah Real Images : {len(real_images)}")
 def extract_rgb_histogram(images, bins=32):
     features = []
     for img in images:
-        hist_r = cv2.normalize(cv2.calcHist([img], [0], None, [bins], [0, 256]), None).flatten()
-        hist_g = cv2.normalize(cv2.calcHist([img], [1], None, [bins], [0, 256]), None).flatten()
-        hist_b = cv2.normalize(cv2.calcHist([img], [2], None, [bins], [0, 256]), None).flatten()
+        hist_r = cv.normalize(cv.calcHist([img], [0], None, [bins], [0, 256]), None).flatten()
+        hist_g = cv.normalize(cv.calcHist([img], [1], None, [bins], [0, 256]), None).flatten()
+        hist_b = cv.normalize(cv.calcHist([img], [2], None, [bins], [0, 256]), None).flatten()
         features.append(np.hstack([hist_r, hist_g, hist_b]))
     return np.array(features)
     """, language="python")
@@ -836,15 +905,17 @@ def extract_rgb_histogram(images, bins=32):
     </div>
     """, unsafe_allow_html=True)
 
-    # Fungsi untuk mendapatkan vektor fitur asli untuk demo
     def get_vector_sample(image_path, bins=32):
-        img = cv2.imread(image_path)
-        if img is None: return np.zeros(96)
-        img = safe_resize(img, (128, 128))
+        img_bgr = cv2.imread(str(image_path))
+        if img_bgr is None: return np.zeros(96)
+        
+        img_rgb = cv2.cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
+        img_res = cv2.resize(img_rgb, (128, 128))
         
         features = []
         for i in range(3):
-            hist = cv2.calcHist([img], [i], None, [bins], [0, 256])
+            # Hitung Hist tiap channel (R, G, B)
+            hist = cv2.calcHist([img_res], [i], None, [bins], [0, 256])
             hist = cv2.normalize(hist, hist).flatten()
             features.extend(hist)
         return np.array(features)
@@ -867,94 +938,6 @@ def extract_rgb_histogram(images, bins=32):
             st.write("Vektor Fitur Numerik:")
             st.code(f"{vec_ai}", language="python")
 
-    #HOG -
-    st.markdown("""
-    <div class="card">
-        <h3>🟢 Ekstraksi Fitur: Histogram of Oriented Gradients (HOG)</h3>
-        <p>Ekstraksi fitur yang berfokus pada bentuk (shape) dan tepi (edge) gambar berdasarkan arah gradien piksel.</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-    
-    st.code("""
-def extract_hog(images):
-    features = []
-    for img in images:
-        feat, _ = hog(img,
-                      orientations=9,
-                      pixels_per_cell=(8, 8),
-                      cells_per_block=(2, 2),
-                      block_norm='L2-Hys',
-                      visualize=True)
-        features.append(feat)
-    return np.array(features)
-    """, language="python")
-
-    # Visualisasi HOG (Grayscale vs HOG Image)
-    st.markdown("#### 🔍 Visualisasi Ekstraksi HOG")
-    
-    def plot_hog_st(image_path, label_name):
-        img_bgr = cv2.imread(image_path)
-        if img_bgr is None: return
-        
-        img_rgb = safe_cvtColor(img_bgr, cv2.COLOR_BGR2RGB)
-        img_res = safe_resize(img_rgb, (128, 128))
-        img_gray = safe_cvtColor(img_res, cv2.COLOR_RGB2GRAY).astype(np.uint8)
-        img_norm = img_gray / 255.0
-
-        fd, hog_image = hog(img_norm,
-                            orientations=9,
-                            pixels_per_cell=(8, 8),
-                            cells_per_block=(2, 2),
-                            block_norm='L2-Hys',
-                            visualize=True)
-
-        st.write(f"**Sampel {label_name}:**")
-        h_col1, h_col2 = st.columns(2)
-        with h_col1:
-            st.image(img_norm, caption="Grayscale Normalized", use_container_width=True, clamp=True)
-        with h_col2:
-            st.image(hog_image, caption="Visualisasi HOG", use_container_width=True, clamp=True)
-        return fd
-
-    if ai_images_for_view:
-        vec_hog_ai = plot_hog_st(ai_images_for_view[0], "AI")
-
-    st.markdown("<br>", unsafe_allow_html=True)
-
-    if real_images_for_view:
-        vec_hog_real = plot_hog_st(real_images_for_view[0], "Real")
-
-    total_hog = len(ai_images_aug) + len(real_images_aug)
-    hog_vector_length = len(vec_hog_ai) if 'vec_hog_ai' in locals() and vec_hog_ai is not None else 8100
-    st.markdown(f"""
-    <div style="background-color: rgba(128, 128, 128, 0.1); padding: 15px; border-radius: 10px; margin-top: 20px;">
-        <p style="margin: 0;">📊 <b>Bentuk array fitur HOG:</b> ({total_hog}, {hog_vector_length})</p>
-        <p style="margin: 0;">🏷️ <b>Jumlah label:</b> {total_hog}</p>
-    </div>
-    """, unsafe_allow_html=True)
-
-    st.markdown("""
-    <div class="card" style="text-align: center; margin-top: 30px;">
-        <h3>📋 VEKTOR FITUR HOG UNTUK SETIAP KELAS</h3>
-    </div>
-    """, unsafe_allow_html=True)
-
-    cv1, cv2 = st.columns(2)
-    with cv1:
-        st.markdown("#### --- Kelas: REAL ---")
-        if real_images_for_view and 'vec_hog_real' in locals():
-            st.write(f"**Panjang Vektor:** {len(vec_hog_real)}")
-            st.write("Contoh 20 angka pertama:")
-            st.code(f"{vec_hog_real[:20] if len(vec_hog_real) > 20 else vec_hog_real}", language="python")
-
-    with cv2:
-        st.markdown("#### --- Kelas: AI ---")
-        if ai_images_for_view and 'vec_hog_ai' in locals():
-            st.write(f"**Panjang Vektor:** {len(vec_hog_ai)}")
-            st.write("Contoh 20 angka pertama:")
-            st.code(f"{vec_hog_ai[:20] if len(vec_hog_ai) > 20 else vec_hog_ai}", language="python")
-
     # LBP 
     st.markdown("""
     <div class="card">
@@ -970,7 +953,7 @@ def extract_lbp(images):
     method = 'uniform'
     features = []
     for img in images:
-        gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+        gray = cv.cvtColor(img, cv.COLOR_RGB2GRAY)
         lbp = local_binary_pattern(gray, n_points, radius, method)
         hist, _ = np.histogram(lbp.ravel(), bins=np.arange(0, n_points + 3), range=(0, n_points + 2))
         hist = hist.astype("float") / (hist.sum() + 1e-6)
@@ -984,32 +967,35 @@ def extract_lbp(images):
         
         try:
             img_pil = Image.open(str(image_path)).convert('RGB')
-            # Resize menggunakan PIL
-            img_resized = img_pil.resize((128, 128), Image.Resampling.LANCZOS)
-            img_rgb_lbp = np.array(img_resized)
+            
+            img_rgb = np.array(img_pil)
+            
+            img_res = cv2.resize(img_rgb, (128, 128), interpolation=cv2.INTER_LINEAR)
+            
+            img_gray = cv2.cvtColor(img_res, cv2.COLOR_RGB2GRAY)
+
+            radius = 3
+            n_points = 8 * radius
+            
+            lbp_map = local_binary_pattern(img_gray, n_points, radius, method='uniform')
+            
+            bins_range = np.arange(0, n_points + 3)
+            hist, _ = np.histogram(lbp_map.ravel(), bins=bins_range, range=(0, n_points + 2))
+            
+            vec_final = hist.astype("float") / (hist.sum() + 1e-6)
+            
+            st.write(f"**Sampel {label_name}:**")
+            col1, col2 = st.columns(2)
+            with col1:
+                st.image(img_gray, caption="Grayscale (OpenCV Weights)", use_container_width=True)
+            with col2:
+                st.image(lbp_map, caption="LBP Map", use_container_width=True, clamp=True)
+            
+            return vec_final
+
         except Exception as e:
-            st.error(f"Gagal membaca gambar di: {image_path}")
+            st.error(f"Gagal memproses LBP: {e}")
             return None
-        
-        img_gray_lbp = rgb2gray(img_rgb_lbp) * 255  
-        
-        # Parameter LBP
-        r_param = 3
-        p_param = 8 * r_param
-        lbp_out = local_binary_pattern(img_gray_lbp, p_param, r_param, method='uniform')
-        
-        # Hitung histogram
-        hist_lbp, _ = np.histogram(lbp_out.ravel(), bins=np.arange(0, p_param + 3), range=(0, p_param + 2))
-        vec_final = hist_lbp.astype("float") / (hist_lbp.sum() + 1e-6)
-        
-        st.write(f"**Sampel {label_name}:**")
-        l_col1, l_col2 = st.columns(2)
-        with l_col1:
-            st.image(img_gray_lbp.astype(np.uint8), caption="Grayscale Image", use_container_width=True)
-        with l_col2:
-            st.image(lbp_out, caption="LBP Image (Texture Map)", use_container_width=True, clamp=True)
-        
-        return vec_final
     
     #  Visualisasi LBP
     if ai_images_aug:
@@ -1045,6 +1031,57 @@ def extract_lbp(images):
         if ai_images_aug and 'lbp_vec_ai' in locals():
             st.write(f"**Panjang Vektor:** {len(lbp_vec_ai)}")
             st.code(f"{lbp_vec_ai}", language="python")
+    
+    # FEATURE FUSION
+    st.markdown("""
+    <div class="card">
+        <h3>🧩 Pipeline Feature Fusion</h3>
+        <p>Pada tahap ini, fitur-fitur individu digabungkan (concatenated) untuk membentuk skenario pelatihan yang berbeda. 
+        Tujuannya adalah menemukan kombinasi karakteristik visual paling optimal untuk membedakan gambar AI dan Nyata.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    st.code("""
+
+# Skenario 1-3: Fitur Tunggal
+X_sc_color = X_color
+X_sc_hog   = X_hog
+X_sc_lbp   = X_lbp
+
+# Skenario 4-7: Kombinasi Fitur (Feature Fusion)
+X_color_hog = np.hstack((X_color, X_hog))
+X_color_lbp = np.hstack((X_color, X_lbp))
+X_hog_lbp   = np.hstack((X_hog, X_lbp))
+X_all       = np.hstack((X_color, X_hog, X_lbp))
+
+feature_sets = {
+    "Histogram Warna": X_sc_color,
+    "HOG": X_sc_hog,
+    "LBP": X_sc_lbp,
+    "Warna + HOG": X_color_hog,
+    "Warna + LBP": X_color_lbp,
+    "HOG + LBP": X_hog_lbp,
+    "Warna + HOG + LBP": X_all
+}
+    """, language="python")
+
+    st.markdown("#### 📊 RINCIAN JUMLAH FITUR TOTAL PER SKENARIO")
+
+    dim_color = 96
+    dim_lbp = 26
+    dim_hog = 8100 
+
+    # Membuat data untuk tabel
+    scenarios = [
+        {"Skenario": "Histogram Warna", "Jumlah Fitur": f"{dim_color} fitur"},
+        {"Skenario": "HOG", "Jumlah Fitur": f"{dim_hog} fitur"},
+        {"Skenario": "LBP", "Jumlah Fitur": f"{dim_lbp} fitur"},
+        {"Skenario": "Warna + HOG", "Jumlah Fitur": f"{dim_color + dim_hog} fitur"},
+        {"Skenario": "Warna + LBP", "Jumlah Fitur": f"{dim_color + dim_lbp} fitur"},
+        {"Skenario": "HOG + LBP", "Jumlah Fitur": f"{dim_hog + dim_lbp} fitur"},
+        {"Skenario": "Warna + HOG + LBP", "Jumlah Fitur": f"{dim_color + dim_hog + dim_lbp} fitur"},
+    ]
+    st.table(scenarios)
 
 # TRAINING & EVALUATION 
     st.markdown("""
