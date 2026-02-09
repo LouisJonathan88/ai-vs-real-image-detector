@@ -69,7 +69,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-
 # Memuat model klasifikasi
 @st.cache_resource(show_spinner=False)
 def load_model():
