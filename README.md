@@ -26,10 +26,10 @@ Aplikasi web berbasis **Streamlit** untuk mendeteksi apakah sebuah gambar merupa
 ## 🔄 Alur Sistem
 
 1. Dataset gambar AI dan gambar nyata
+2. Pembagian data latih dan data uji (80:20)
 2. Augmentasi data citra
 3. Pra-pemrosesan (resize, grayscale, normalisasi)
 4. Ekstraksi fitur (RGB Histogram, HOG, LBP)
-5. Pembagian data latih dan data uji (80:20)
 6. Pelatihan model SVM
 7. Evaluasi performa model
 
