@@ -2,19 +2,12 @@ import streamlit as st
 import pickle
 import cv2
 import numpy as np
-from skimage.feature import local_binary_pattern
 import numpy as np
 from streamlit_option_menu import option_menu
 from predict_utils import build_feature
 import os
-import base64
-from pathlib import Path                   
-from glob import glob           
-import numpy as np      
-import matplotlib.pyplot as plt 
-import seaborn as sns           
-from skimage.feature import hog               
-from skimage.feature import local_binary_pattern  
+import base64         
+import numpy as np
 
 # Konfigurasi halaman
 st.set_page_config(
@@ -270,7 +263,7 @@ elif selected == "Prediksi Gambar":
                 proba = model.predict_proba(X)[0]
                 confidence = np.max(proba) * 100
 
-            label = "Gambar Hasil AI" if pred == 1 else "Gambar Nyata"
+            label = "Gambar Hasil AI" if pred == 0 else "Gambar Nyata"
 
             # Hasil klasifikasi
             result_html = f"""
