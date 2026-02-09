@@ -135,10 +135,10 @@ if selected == "Beranda":
             <h3>🔄 Alur Machine Learning</h3>
             <ul>
                 <li>📂 Dataset gambar AI dan gambar nyata</li>
+                <li>📊 Pembagian data latih dan data uji</li>
                 <li>🔁 Augmentasi (Flip Horizontal, Rotasi, Zoom)</li>
                 <li>🔧 Pra-pemrosesan (resize dan normalisasi)</li>
-                <li>🎨 Ekstraksi fitur (RGB Histogram, LBP, dan HOG)</li>
-                <li>📊 Pembagian data latih dan data uji</li>
+                <li>🎨 Ekstraksi fitur (RGB Histogram, LBP, dan HOG)</li> 
                 <li>🌳 Pelatihan dan pengujian model SVM</li>
                 <li>📈 Evaluasi menggunakan Confusion Matrix</li>
                 <li>🖼️ Sistem deteksi gambar AI dan gambar nyata</li>
