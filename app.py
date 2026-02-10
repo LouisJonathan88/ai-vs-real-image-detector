@@ -134,7 +134,7 @@ if selected == "Beranda":
             <h3>🔄 Alur Machine Learning</h3>
             <ul>
                 <li>📂 Dataset gambar AI dan gambar nyata</li>
-                <li>📊 Pembagian data latih dan data uji</li>
+                <li>📊 Pembagian data latih dan data uji (80:20)</li>
                 <li>🔁 Augmentasi (Flip Horizontal, Rotasi, Zoom)</li>
                 <li>🔧 Pra-pemrosesan (resize dan normalisasi)</li>
                 <li>🎨 Ekstraksi fitur (RGB Histogram, LBP, dan HOG)</li> 
