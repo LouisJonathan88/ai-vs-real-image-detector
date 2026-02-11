@@ -262,7 +262,7 @@ elif selected == "Prediksi Gambar":
                 proba = model.predict_proba(X)[0]
                 confidence = np.max(proba) * 100
 
-            label = "Gambar Hasil AI" if pred == 0 else "Gambar Nyata"
+            label = "Gambar Hasil AI" if pred == 1 else "Gambar Nyata"
 
             # Hasil klasifikasi
             result_html = f"""
